@@ -1,4 +1,5 @@
 <script setup>
+        import { ref, onMounted, watch } from 'vue'
         const posts = ref([])
         const postlikes = ref([]);
         const postcomments = ref([]);
@@ -128,5 +129,77 @@
 </script>
 
 <template>
-  <main></main>
+  <main>
+      <div v-for="p in posts" class="div_content_style" style="background-color: white; margin: 16px; padding: 40px; border-radius: 26px;">
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <a :href="'posts/' + getUserName(p.fields.user)" class="userstylepic">
+                            <strong style="color: white;">
+                                {{ getUserNameFirstChar(p.fields.user) }}
+                            </strong>
+                        </a>
+
+                        <a :href="'/posts/post/' + p.fields.link" class="classUserProfile">
+                            {{ p.fields.title }}
+                        </a> <br />
+                        <span class="timeOfPost">0 days</span>
+                    </td>    
+                </tr>
+                <tr>
+                    <td>
+                        {{ p.fields.post_content.slice(0, 200) + "..." }} <br />
+                        <span class="likesclass">
+                            <i class="bi bi-hand-thumbs-up"></i>
+                        </span> {{ search(p.pk, postlikes, 'likes') }}
+                        <span class="commentMargin">
+                            <i class="bi bi-chat-left"></i>
+                        </span> {{ search(p.pk, postcomments, 'comments') }}
+                        <span class="shareMargin">
+                            <i class="bi bi-share"></i>
+                        </span> {{ search(p.pk, postshares, 'shares') }}               
+                    </td>                                   
+                </tr> 
+                <tr>
+                    <td><hr class="lineclass" /></td>
+                </tr>      
+                <tr>
+                    <td>
+                        <i class="bi bi-hand-thumbs-up" onClick="() => sendData('like', p.pk)"></i> Like   
+                        <i class="bi bi-chat-left optionsclass"></i> comment    
+                        <i class="bi bi-share optionsclass"></i> share
+                    </td>
+                </tr>  
+                <tr>
+                    <td><hr class=" lineclass " /></td>
+                </tr>   
+                <tr>
+                    <td>
+                        <label class="userclassPic2 centerText"><span>{{ p.fields.topic }}</span></label>
+                        <div class="divcommentclass, container " >
+                            <input type="text"                                                 
+                                class="commentclass, content " 
+                                onChange="(e) => { setPostCommenttxt(e.target.value)}"
+                                placeholder="Write a comment..." />
+                                <span class="commenticons, sidecontent ">
+                                    <i class="bi bi-emoji-smile optionsclass"></i>
+                                    <i class="bi bi-image optionsclass"></i>
+                                    <i class="bi bi-hand-thumbs-up optionsclass"></i>
+                                    <i class="bi bi-hand-thumbs-down optionsclass"></i>
+                                    <i class="bi bi-heart optionsclass"></i>
+                                    <i class="bi bi-handbag optionsclass"></i>
+                                </span>
+                        </div>  
+                        <i class="bi bi-send btnSendComment" title="Post Comment" 
+                        onClick="() => sendData('comment', p.pk)">
+                            <span class="removeclass ">Post</span>
+                        </i>  
+                    </td>    
+                </tr>    
+            </tbody>    
+        </table>    
+        <br /><br />                   
+    </div>
+  </main>
 </template>
