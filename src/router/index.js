@@ -16,6 +16,14 @@ const router = createRouter({
       component: Home
     },
     {
+      path: '/posts/:username',
+      name: 'dashboard',
+      component: Dashboard,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
       path: '/dashboard',
       name: 'dashboard',
       component: Dashboard,
