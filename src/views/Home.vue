@@ -1,5 +1,7 @@
 <script setup>
         import { ref, onMounted, watch } from 'vue'
+        import axios from 'axios'
+
         const posts = ref([])
         const postlikes = ref([]);
         const postcomments = ref([]);
@@ -8,10 +10,11 @@
         const commenttxt = ref('');        
         const posts_user = ref([]);
         const initialState = ref(false);
+        const link = ref('http://127.0.0.1:8000/api/')
 
         onMounted(() => {
             if(!initialState.value){
-                axios.get("postlist").then((data) => {
+                axios.get(`${ link.value }postlist`).then((data) => {
                     var posts_data = data.data.post_data
                     var likes_data = data.data.like_data
                     var comments_data = data.data.comment_data
@@ -32,8 +35,8 @@
                 });    
                 initialState.value = true     
             }
-            getData("postlikes");
-            getData("postcomments");
+            getData(`${ link.value }postlikes`);
+            getData(`${ link.value }postcomments`);
         })
         const search = (k, arr, tp) => {
             console.log('======')
@@ -50,7 +53,7 @@
             return array.indexOf(value) === index;
         };
         async function loadUserAtrib(ids_of_posts) {
-            await axios.get('/useratrib/', { params: { ids: ids_of_posts } }).then((data) => {
+            await axios.get(`${ link.value }useratrib`, { params: { ids: ids_of_posts } }).then((data) => {
                var arr = {};
                let v = data.data.split(';')
                for (var i = 0; i < v.length; i++) {
@@ -88,16 +91,16 @@
         };
         async function sendData(vtype_of_like, vpost_id) {
             let rs_response = ""
-            let link = ""
+            let lnk = ""
 
             if(vtype_of_like === "like") {
-                link = "/addremovelike/" 
+                lnk = `${ link.value }addremovelike`; 
             } else if(vtype_of_like === "comment") {
-                link = "/addcomment/"
+                lnk = `${ link.value }addcomment`;
             }
             const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             const v = {"post_id": vpost_id, "type_of_like": vtype_of_like, "txt": commenttxt }            
-            await axios.post(link, v, 
+            await axios.post(lnk, v, 
                 {
                     headers: {
                         'X-CSRFToken': csrftoken
