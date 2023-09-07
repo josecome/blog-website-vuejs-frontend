@@ -10,6 +10,29 @@ const router = createRouter({
       component: Home
     },
     {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: Dashboard,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login
+    },
+    {
+      path: '/logout',
+      name: 'logout',
+      component: Logout
+    },
+    {
+      path: '/create_account',
+      name: 'create_account',
+      component: Registration
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting
