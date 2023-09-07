@@ -133,7 +133,7 @@
 
 <template>
   <main>
-      <div v-for="p in posts" class="div_content_style" style="background-color: white; margin: 16px; padding: 40px; border-radius: 26px;">
+      <div v-for="p in posts" class="div_content_style" style="background-color: white; margin: 16px; padding: 20px; border-radius: 26px;">
         <table>
             <tbody>
                 <tr>
