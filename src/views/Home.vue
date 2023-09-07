@@ -7,7 +7,124 @@
         const commenttxt = ref('');        
         const posts_user = ref([]);
         const initialState = ref(false);
-        
+
+        onMounted(() => {
+            if(!initialState.value){
+                axios.get("postlist").then((data) => {
+                    var posts_data = data.data.post_data
+                    var likes_data = data.data.like_data
+                    var comments_data = data.data.comment_data
+                    var shares_data = data.data.share_data
+                    var users_data = data.data.user_data
+
+                    console.log("============vvvv======================")
+                    console.log(posts_data)
+                    posts.value = posts_data;
+                    postlikes.value = likes_data
+                    postcomments.value = comments_data
+                    postshares.value = shares_data              
+                    posts_user.value = users_data
+
+                    let postids = posts_data.map(i => {return i.fields.user})
+                    let ids_of_posts = String(postids.filter(onlyUnique))
+                    loadUserAtrib(ids_of_posts);
+                });    
+                initialState.value = true     
+            }
+            getData("postlikes");
+            getData("postcomments");
+        })
+        const search = (k, arr, tp) => {
+            console.log('======')
+            var total = 0;
+            for (let i = 0; i < arr.length; i++) {
+                var arr_fields = arr[i].fields
+                arr_fields.post === k ? total += 1 : total += 0;
+                console.log(arr_fields.post)
+            }
+
+            return total || 0
+        };
+        function onlyUnique(value, index, array) {
+            return array.indexOf(value) === index;
+        };
+        async function loadUserAtrib(ids_of_posts) {
+            await axios.get('/useratrib/', { params: { ids: ids_of_posts } }).then((data) => {
+               var arr = {};
+               let v = data.data.split(';')
+               for (var i = 0; i < v.length; i++) {
+                    var s = v[i].split(':');
+                    if(s[0] === null || s[0] === '' || s[0] === 'null' || typeof s[0] === 'undefined') {
+                        break;
+                    }
+                    arr[s[0].trim()] = s[1].trim();
+                }
+                useratributes.value = arr
+                console.log('User: ' + useratributes.value)
+            })
+        }
+
+        async function getData(pg) {
+           //setCountPostClick(countPostClick + 1)
+           await axios.get(pg).then((data) => {
+               var arr = {};
+               let v = data.data.split(';')
+               for (var i = 0; i < v.length; i++) {
+                    var s = v[i].split(':');
+                    if(s[0] === null || s[0] === '' || s[0] === 'null' || typeof s[0] === 'undefined') {
+                        break;
+                    }
+                    arr[s[0].trim()] = s[1].trim();
+                }
+                if(pg === "postlikes") {
+                   postlikes.value = arr;                    
+                }
+                else if(pg === "postcomments") {
+                    postcomments.value = arr; 
+                }
+                
+            })
+        };
+        async function sendData(vtype_of_like, vpost_id) {
+            let rs_response = ""
+            let link = ""
+
+            if(vtype_of_like === "like") {
+                link = "/addremovelike/" 
+            } else if(vtype_of_like === "comment") {
+                link = "/addcomment/"
+            }
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const v = {"post_id": vpost_id, "type_of_like": vtype_of_like, "txt": commenttxt }            
+            await axios.post(link, v, 
+                {
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    }
+                })
+                .then((response) => {
+                    rs_response = response.data
+                    console.log("rs: " + rs_response)
+                    if(vtype_of_like === "like") {
+                       getData("postlikes"); 
+                    } else if(vtype_of_like === "comment") {
+                       getData("postcomments");
+                    }    
+                }, (error) => {
+                    rs_response = error;
+                });
+        }
+        const getUserNameFirstChar = (v) => {
+            var user_name = posts_user.value.filter((i) => i.pk === v)
+            return user_name[0].fields.username.split('')[0];
+        }
+        const getUserName = (v) => {
+            console.log('===================')
+            console.log(v)
+            console.log(posts_user.value)
+            var user_name = posts_user.value.filter((i) => i.pk === v)
+            return user_name[0].fields.username;
+        }
 </script>
 
 <template>
