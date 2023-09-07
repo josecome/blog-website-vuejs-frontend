@@ -1,6 +1,5 @@
-<script setup>
-</script>
+<script setup></script>
 
 <template>
-    <div>Logged out successfully!</div>
+  <div>Logged out successfully!</div>
 </template>
