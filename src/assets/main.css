@@ -1,3 +1,6 @@
 body {
   background-color: #DEDFE1;
 }
+#app {
+  width: 80%;
+}
