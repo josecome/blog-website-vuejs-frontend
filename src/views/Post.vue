@@ -1,6 +1,8 @@
 <script setup>
-        const { createApp, ref, onMounted } = Vue
-        const link_username = ref(route.params.username);
+        import { ref, onMounted, onBeforeMount } from 'vue'
+        import { useRoute } from 'vue-router'
+        import axios from 'axios'
+        const route = useRoute()
         const post = ref([])
         const postlikes = ref([]);
         const postcomments = ref([]);
@@ -10,8 +12,7 @@
         const initialState = ref(false);
         const countlikes = ref(0)
         const link = ref('http://127.0.0.1:8000/api/')
-        const path = window.location.pathname.replace('/posts/post/', '');
-        const pathname = ref(path)
+        const link_path = ref(route.params.lnk)
 
         const search = (k, arr, tp) => {
             console.log('======')
@@ -27,7 +28,7 @@
         
         onMounted(() => {
             if(!initialState.value){
-                axios.get(`${ link.value }postdata/${ pathname.value }`).then((data) => {
+                axios.get(`${ link.value }postdata/${ link_path.value }`).then((data) => {
                     console.log(data.data) 
                     var post_data = data.data.post_data[0].fields
                     var postid_data = data.data.post_data[0].pk;
