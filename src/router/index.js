@@ -61,12 +61,14 @@ const router = createRouter({
   ]
 })
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(page => page.meta.requiresAuth)) { //to.name !== 'login' && !this.isloggedin
+  if (to.matched.some((page) => page.meta.requiresAuth)) {
+    //to.name !== 'login' && !this.isloggedin
     const auth_store = useStoreAuth()
-    const {  isLoggedin } = storeToRefs(auth_store)
-    if ( !isLoggedin.value ) { //Is not logged in, go to Login Page
-      next({ 
-        name: 'login' 
+    const { isLoggedin } = storeToRefs(auth_store)
+    if (!isLoggedin.value) {
+      //Is not logged in, go to Login Page
+      next({
+        name: 'login'
         //path: 'login',
         //replace: true
       })

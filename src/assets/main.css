@@ -1,11 +1,11 @@
 body {
-  background-color: #9C9C9D;
+  background-color: #9c9c9d;
 }
 #app {
   width: 80%;
 }
 a {
-  text-decoration: none !important
+  text-decoration: none !important;
 }
 .centerText {
   text-align: center;
@@ -19,26 +19,26 @@ a {
   border-radius: 50%;
   font-size: 32px;
   padding-left: 10px;
-};
+}
 .divstyle {
-  height: 120px
-};
+  height: 120px;
+}
 .divcontstyle {
   height: 100px;
-  margin-right: 10%
-};
+  margin-right: 10%;
+}
 .styleuserprofile {
   text-align: left;
-};
+}
 .optionsstyle {
   padding-left: 10px;
-};
+}
 .linestyle {
   width: 100%;
-  color: gray
+  color: gray;
 }
 .divcommentstyle {
-  width: 80%;  
+  width: 80%;
   border: 1px solid gray;
   border-radius: 6px;
   text-align: left;
@@ -47,55 +47,55 @@ a {
   line-height: 20px;
   list-style: none;
   padding: 2px 4px;
-  display: inline-block
-};
+  display: inline-block;
+}
 .commentstyle {
-border: 0px;          
-};
+  border: 0px;
+}
 .commenticons {
-text-align: right;
-float: right;
-};
+  text-align: right;
+  float: right;
+}
 .centertext {
-  text-align: center;            
+  text-align: center;
 }
 .timeofpost {
-  font-size: 10px
-};
+  font-size: 10px;
+}
 .likesstyle {
   background-color: #3498db;
   border-radius: 50%;
   color: white;
-  text-align: center
-};
+  text-align: center;
+}
 .div_content_style {
   background-color: white;
-  border-radius: 26px;  
+  border-radius: 26px;
   margin: 10px;
-  padding: 40px;      
-};
+  padding: 40px;
+}
 .table_of_content_style {
   margin: 16px;
   background-color: white;
-};
+}
 .commentmargin {
   margin-left: 16px;
-};
+}
 .btnsendcomment {
   margin-left: 16px;
   color: #3498db;
-};
+}
 .container {
   border: 1px solid grey;
   display: flex;
-};
+}
 .content {
   flex-grow: 1;
   margin: 5px;
-};
+}
 .sidecontent {
   margin: 5px 5px 5px 0;
-};
+}
 .removestyle {
   all: unset;
-};
+}
