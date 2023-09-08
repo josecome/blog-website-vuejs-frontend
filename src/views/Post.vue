@@ -10,7 +10,7 @@
         const initialState = ref(false);
         const countlikes = ref(0)
         const link = ref('http://127.0.0.1:8000/api/')
-
+        const path = window.location.pathname.replace('/posts/post/', '');
         const pathname = ref(path)
 
         const search = (k, arr, tp) => {
@@ -27,7 +27,7 @@
         
         onMounted(() => {
             if(!initialState.value){
-                axios.get(`${ link.value }postdata/${ link_username.value }`).then((data) => {
+                axios.get(`${ link.value }postdata/${ pathname.value }`).then((data) => {
                     console.log(data.data) 
                     var post_data = data.data.post_data[0].fields
                     var postid_data = data.data.post_data[0].pk;
@@ -46,3 +46,40 @@
 
         })
 </script>
+
+<template>
+    <div style="width: 80%; padding: 20px;">
+    <div class="div_content_style" style="background-color: white; margin: 16px; padding: 40px; border-radius: 26px; width: 90%; overflow: hidden;">
+        <div style="float: left; width: 560px;">
+            <h3>{{ post.title }}</h3> 
+            <p>{{ post.post_content }}</p>
+        </div>
+        <div style="width: 460px; margin-top: 2px; float: right; border: 1px solid gray;">
+            <span class="userstylepic" style="margin: 10px;">
+                <strong style="color: white;">
+                    F
+                </strong>
+            </span> <br />
+            <span style="padding: 10px;">{{ post.date_created }}</span> 
+            <span style="margin-left: 12px; padding: 10px;">{{ post.post_type }}</span><br>
+            <br />          
+                   
+            <span class="likesclass" style="padding: 10px;">
+                <i class="bi bi-hand-thumbs-up"></i>
+            </span> {{ search(postid, postlikes, 'likes') }}
+            <span class="commentMargin" style="padding: 10px;">
+                <i class="bi bi-chat-left"></i>
+            </span> {{ search(postid, postcomments, 'comments') }}
+            <span class="shareMargin" style="padding: 10px;">
+                <i class="bi bi-share"></i>
+          </span> {{ search(postid, postshares, 'shares') }}<br />
+          <hr style="width: 92%;"/>
+          <strong>Comments</strong><br /> <hr style="width: 92%;"/>
+          <div v-for="c in postcomments" style="width: 100%; padding: 10px; margin: 10px;">
+              {{ c.fields.comment }}<br /> <hr style="width: 92%;"/>
+          </div>
+        </div>
+    </div>
+
+</div>
+</template>
