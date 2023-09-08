@@ -22,7 +22,7 @@ console.log('Route Name: ' + route.name)
 
 <template>
   <header v-show="route.name !== 'dashboard'">
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="45" height="45" /> <span>e-commerce</span>
+    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="45" height="45" /> <span>Blog Webpage</span>
     <nav style="float: right;">
       <RouterLink to="/login">Login</RouterLink>/
       <RouterLink to="/create_account">Register</RouterLink>
