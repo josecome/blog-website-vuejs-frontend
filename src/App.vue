@@ -1,8 +1,8 @@
 <script setup>
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { ref, onMounted, watch } from 'vue'
-//import Header from './components/Header.vue'
-//import Footer from './components/Footer.vue'
+import Header from './components/Header.vue'
+import Footer from './components/Footer.vue'
 import { computed } from '@vue/reactivity'
 import { useStoreAuth } from '@/stores/auth_store'
 import { useRouter } from 'vue-router'
@@ -33,6 +33,7 @@ console.log('Route Name: ' + route.name)
   </header>
 
   <RouterView />
+  <Footer />
 </template>
 <style>
 @import 'bootstrap/dist/css/bootstrap.css';
