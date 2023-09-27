@@ -1,58 +1,68 @@
 <script setup>
-import { ref, onMounted, onBeforeMount } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
+import { useRoute } from 'vue-router'
+
 const route = useRoute()
 const link_username = ref(route.params.username)
 const posts = ref([])
 const postlikes = ref([])
 const postcomments = ref([])
-const postshares = ref([])
 const useratributes = ref([])
+const postshares = ref([])
 const commenttxt = ref('')
 const posts_user = ref([])
+const posts_id = ref('')
 const initialState = ref(false)
 const link = ref('http://127.0.0.1:8000/api/')
 
 onMounted(() => {
+  var param_ids = "";
   if (!initialState.value) {
-    axios.get(`${link.value}postscontent/${link_username.value}`).then((data) => {
-      var posts_data = data.data.post_data
-      var likes_data = data.data.like_data
-      var comments_data = data.data.comment_data
-      var shares_data = data.data.share_data
-      console.log('============vvvv======================')
-      console.log(posts_data)
+    axios.get(`${link.value}user_posts/${link_username.value}`).then((data) => {
+      console.log(data.data)
+      var posts_data = data.data
+      
       posts.value = posts_data
-      postlikes.value = likes_data
-      postcomments.value = comments_data
-      postshares.value = shares_data
 
       let postids = posts_data.map((i) => {
-        return i.fields.user
+        return getParameterOfUrl(i.user);
       })
+
       let ids_of_posts = String(postids.filter(onlyUnique))
+
+      param_ids = (posts_data.map((z) => {return 't=' + z.id + '&' })).join('')
+      posts_id.value = param_ids
+
       loadUserAtrib(ids_of_posts)
+      getData(`${link.value}posts/count_likes/`, param_ids)
+      getData(`${link.value}posts/count_comments/`, param_ids)
+      getData(`${link.value}posts/count_shares/`, param_ids)
     })
     initialState.value = true
   }
-})
-const search = (k, arr, tp) => {
-  console.log('======')
-  var total = 0
-  for (let i = 0; i < arr.length; i++) {
-    var arr_fields = arr[i].fields
-    arr_fields.post === k ? (total += 1) : (total += 0)
-    console.log(arr_fields.post)
-  }
+  console.log('------------zzzz-----------------')
+  console.log(param_ids)
 
+})
+function getParameterOfUrl(u)     
+{     
+    u = u.replace(/\/$/, "");
+    return u.substr(u.lastIndexOf('/') + 1);
+} 
+const search = (k, arr, tp) => {
+  var total = 0
+  for (let [key, value] of Object.entries(arr)) {
+    Number(key) === Number(k) ? total = Number(value) : ''
+  }
   return total || 0
 }
 function onlyUnique(value, index, array) {
   return array.indexOf(value) === index
 }
 async function loadUserAtrib(ids_of_posts) {
-  await axios.get(`${link.value}useratrib/`, { params: { ids: ids_of_posts } }).then((data) => {
+  await axios.get(`${link.value}useratrib`, { params: { ids: ids_of_posts } }).then((data) => {
+    console.log(data.data)
     var arr = {}
     let v = data.data.split(';')
     for (var i = 0; i < v.length; i++) {
@@ -63,39 +73,39 @@ async function loadUserAtrib(ids_of_posts) {
       arr[s[0].trim()] = s[1].trim()
     }
     useratributes.value = arr
-    console.log('User: ' + useratributes.value)
   })
 }
 
-async function getData(pg) {
-  /*await axios.get(pg).then((data) => {
-               var arr = {};
-               let v = data.data.split(';')
-               for (var i = 0; i < v.length; i++) {
-                    var s = v[i].split(':');
-                    if(i < 6){console.log('ssss:' + s[i])}
-                    if(s[0] === null || s[0] === '' || s[0] === 'null' || typeof s[0] === 'undefined') {
-                        break;
-                    }
-                    arr[s[0].trim()] = s[1].trim();
-                }
-                if(pg === "postlikes") {
-                   postlikes.value = arr;                    
-                }
-                else if(pg === "postcomments") {
-                    postcomments.value = arr; 
-                }
-                
-            })*/
+async function getData(pg, param_ids) {
+  pg = pg + '?' + param_ids
+  //setCountPostClick(countPostClick + 1)
+  await axios.get(pg).then((data) => {
+    var arr = []
+    let v = data.data.split(';')
+    for (var i = 0; i < v.length; i++) {
+      var s = v[i].split(':')
+      if (s[0] === null || s[0] === '' || s[0] === 'null' || typeof s[0] === 'undefined') {
+        break
+      }
+      arr[s[0].trim()] = s[1].trim()
+    }
+    if (pg.includes('likes')) {
+      postlikes.value = arr
+    } else if (pg.includes('comments')) {
+      postcomments.value = arr
+    } else if (pg.includes('shares')) {
+      postshares.value = arr
+    }
+  })
 }
 async function sendData(vtype_of_like, vpost_id) {
   let rs_response = ''
   let lnk = ''
 
   if (vtype_of_like === 'like') {
-    lnk = `${link.value}addremovelike/`
+    lnk = `${link.value}addremovelike`
   } else if (vtype_of_like === 'comment') {
-    lnk = `${link.value}addcomment/`
+    lnk = `${link.value}addcomment`
   }
   const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
   const v = { post_id: vpost_id, type_of_like: vtype_of_like, txt: commenttxt }
@@ -120,7 +130,24 @@ async function sendData(vtype_of_like, vpost_id) {
       }
     )
 }
+const getUserNameFirstChar = (k) => {
+  for (let [key, value] of Object.entries(useratributes.value)) {
+    if(Number(key) === Number(k)) {
+       return value.split('')[0]
+    }
+  }
+  return k
+}
+const getUserName = (k) => {
+  for (let [key, value] of Object.entries(useratributes.value)) {
+    if(Number(key) === Number(k)) {
+       return value
+    }
+  }
+  return k
+}
 </script>
+
 <template>
   <main>
     <div
@@ -132,8 +159,8 @@ async function sendData(vtype_of_like, vpost_id) {
         <tbody>
           <tr>
             <td>
-              <a :href="'/posts/post/' + p.fields.link" class="classUserProfile">
-                {{ p.fields.title }}
+              <a :href="'/posts/post/' + p.link" class="classUserProfile">
+                {{ p.title }}
               </a>
               <br />
               <span class="timeOfPost">0 days</span>
@@ -141,19 +168,19 @@ async function sendData(vtype_of_like, vpost_id) {
           </tr>
           <tr>
             <td>
-              {{ p.fields.post_content.slice(0, 200) + '...' }} <br />
+              {{ p.post_content.slice(0, 200) + '...' }} <br />
               <span class="likesclass">
                 <i class="bi bi-hand-thumbs-up"></i>
               </span>
-              {{ search(p.pk, postlikes, 'likes') }}
+              {{ search(p.id, postlikes, 'likes') }}
               <span class="commentMargin">
                 <i class="bi bi-chat-left"></i>
               </span>
-              {{ search(p.pk, postcomments, 'comments') }}
+              {{ search(p.id, postcomments, 'comments') }}
               <span class="shareMargin">
                 <i class="bi bi-share"></i>
               </span>
-              {{ search(p.pk, postshares, 'shares') }}
+              {{ search(p.id, postshares, 'shares') }}
             </td>
           </tr>
           <tr>
@@ -172,7 +199,7 @@ async function sendData(vtype_of_like, vpost_id) {
           <tr>
             <td>
               <label class="userclassPic2 centerText"
-                ><span>{{ p.fields.topic }}</span></label
+                ><span>{{ p.topic }}</span></label
               >
               <div class="divcommentclass, container">
                 <input
@@ -201,6 +228,7 @@ async function sendData(vtype_of_like, vpost_id) {
           </tr>
         </tbody>
       </table>
+      <br /><br />
     </div>
   </main>
 </template>

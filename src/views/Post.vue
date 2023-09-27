@@ -7,7 +7,7 @@ const post = ref([])
 const postlikes = ref([])
 const postcomments = ref([])
 const postshares = ref([])
-const commenttxt = ref('')
+const commenttxt = ref([])
 const postid = ref('')
 const initialState = ref(false)
 const countlikes = ref(0)
@@ -15,14 +15,10 @@ const link = ref('http://127.0.0.1:8000/api/')
 const link_path = ref(route.params.lnk)
 
 const search = (k, arr, tp) => {
-  console.log('======')
-  console.log(k)
   var total = 0
-  for (let i = 0; i < arr.length; i++) {
-    var arr_fields = arr[i].fields
-    arr_fields.post === k ? (total += 1) : (total += 0)
+  for (let [key, value] of Object.entries(arr)) {
+    Number(key) === Number(k) ? total = Number(value) : ''
   }
-
   return total || 0
 }
 
@@ -30,21 +26,50 @@ onMounted(() => {
   if (!initialState.value) {
     axios.get(`${link.value}postdata/${link_path.value}`).then((data) => {
       console.log(data.data)
-      var post_data = data.data.post_data[0].fields
-      var postid_data = data.data.post_data[0].pk
-      var like_data = data.data.like_data
-      var comment_data = data.data.comment_data
-      var shares_data = data.data.share_data
+      var post_data = data.data[0]
+      var postid_data = data.data[0].id
 
       post.value = post_data
       postid.value = postid_data
-      postlikes.value = like_data
-      postcomments.value = comment_data
-      postshares.value = shares_data
+
+      getData(`${link.value}posts/count_likes/?t=${ postid_data }`)
+      getData(`${link.value}posts/count_comments/?t=${ postid_data }`)
+      getData(`${link.value}posts/count_shares/?t=${ postid_data }`)
+      getComments(`${link.value}post/${ postid_data }/comments/`)
     })
     initialState.value = true
   }
 })
+async function getComments(pg) {
+  //setCountPostClick(countPostClick + 1)
+  await axios.get(pg).then((data) => {
+    console.log(data.data)
+    commenttxt.value = data.data
+  })
+}
+
+async function getData(pg) {
+  //setCountPostClick(countPostClick + 1)
+  await axios.get(pg).then((data) => {
+    var arr = []
+    let v = data.data.split(';')
+    for (var i = 0; i < v.length; i++) {
+      var s = v[i].split(':')
+      if (s[0] === null || s[0] === '' || s[0] === 'null' || typeof s[0] === 'undefined') {
+        break
+      }
+      arr[s[0].trim()] = s[1].trim()
+    }
+    if (pg.includes('likes')) {
+      postlikes.value = arr
+    } else if (pg.includes('comments')) {
+      postcomments.value = arr
+    } else if (pg.includes('shares')) {
+      postshares.value = arr
+    }
+  })
+}
+
 </script>
 
 <template>
@@ -89,8 +114,8 @@ onMounted(() => {
         <hr style="width: 92%" />
         <strong>Comments</strong><br />
         <hr style="width: 92%" />
-        <div v-for="c in postcomments" style="width: 100%; padding: 10px; margin: 10px">
-          {{ c.fields.comment }}<br />
+        <div v-for="c in commenttxt" style="width: 100%; padding: 10px; margin: 10px">
+          {{ c.post_commented_link }}<br />
           <hr style="width: 92%" />
         </div>
       </div>
