@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
-import Posts from '../views/Posts.vue'
-import Post from '../views/Post.vue'
-import Login from '../views/Login.vue'
-import Logout from '../views/Logout.vue'
-import Registration from '../views/Registration.vue'
-import Dashboard from '../views/Dashboard.vue'
+import HomeView from '../views/HomeView.vue'
+import Posts from '../views/PostsView.vue'
+import PostView from '../views/PostView.vue'
+import LoginView from '../views/LoginView.vue'
+import LogoutView from '../views/LogoutView.vue'
+import RegistrationView from '../views/RegistrationView.vue'
+import DashboardView from '../views/DashboardView.vue'
 import { storeToRefs } from 'pinia'
 import { useStoreAuth } from '@/stores/auth_store'
 
@@ -15,22 +15,22 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: Home
+      component: HomeView
     },
     {
       path: '/posts/:username',
       name: 'posts',
-      component: Posts
+      component: PostsView
     },
     {
-      path: '/posts/post/:lnk',
+      path: '/post/:lnk',
       name: 'post',
-      component: Post
+      component: PostView
     },
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: Dashboard,
+      component: DashboardView,
       meta: {
         requiresAuth: true
       }
@@ -38,17 +38,17 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: Login
+      component: LoginView
     },
     {
       path: '/logout',
       name: 'logout',
-      component: Logout
+      component: LogoutView
     },
     {
       path: '/create_account',
       name: 'create_account',
-      component: Registration
+      component: RegistrationView
     },
     {
       path: '/about',

@@ -48,7 +48,7 @@ const getUserNameFirstChar = (v) => {
                 </strong>
               </a>
 
-              <a :href="'/posts/post/' + p.link" class="classUserProfile">
+              <a :href="'/post/' + p.link" class="classUserProfile">
                 {{ p.title }}
               </a>
               <br />
