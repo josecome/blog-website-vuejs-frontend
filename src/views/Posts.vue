@@ -1,155 +1,38 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import axios from 'axios'
 import { useRoute } from 'vue-router'
+import axios from 'axios'
 
 const route = useRoute()
 const link_username = ref(route.params.username)
 const posts = ref([])
-const postlikes = ref([])
-const postcomments = ref([])
-const useratributes = ref([])
-const postshares = ref([])
-const commenttxt = ref('')
-const posts_user = ref([])
-const posts_id = ref('')
 const initialState = ref(false)
 const link = ref('http://127.0.0.1:8000/api/')
 
 onMounted(() => {
   var param_ids = "";
   if (!initialState.value) {
-    axios.get(`${link.value}user_posts/${link_username.value}`).then((data) => {
-      console.log(data.data)
-      var posts_data = data.data
-      
-      posts.value = posts_data
-
-      let postids = posts_data.map((i) => {
-        return getParameterOfUrl(i.user);
-      })
-
-      let ids_of_posts = String(postids.filter(onlyUnique))
-
-      param_ids = (posts_data.map((z) => {return 't=' + z.id + '&' })).join('')
-      posts_id.value = param_ids
-
-      loadUserAtrib(ids_of_posts)
-      getData(`${link.value}posts/count_likes/`, param_ids)
-      getData(`${link.value}posts/count_comments/`, param_ids)
-      getData(`${link.value}posts/count_shares/`, param_ids)
+    axios.get(`${link.value}user-posts/${link_username.value}`).then((data) => {
+      var posts_data = data.data     
+      console.log('================================')
+      console.log(posts_data)       
+      posts.value = posts_data      
     })
-    initialState.value = true
+  .catch(function (error) {
+    console.log(error);
+  })
+  .finally(function () {
+  });
   }
-  console.log('------------zzzz-----------------')
-  console.log(param_ids)
-
 })
-function getParameterOfUrl(u)     
-{     
-    u = u.replace(/\/$/, "");
-    return u.substr(u.lastIndexOf('/') + 1);
-} 
-const search = (k, arr, tp) => {
-  var total = 0
-  for (let [key, value] of Object.entries(arr)) {
-    Number(key) === Number(k) ? total = Number(value) : ''
-  }
-  return total || 0
-}
-function onlyUnique(value, index, array) {
-  return array.indexOf(value) === index
-}
-async function loadUserAtrib(ids_of_posts) {
-  await axios.get(`${link.value}useratrib`, { params: { ids: ids_of_posts } }).then((data) => {
-    console.log(data.data)
-    var arr = {}
-    let v = data.data.split(';')
-    for (var i = 0; i < v.length; i++) {
-      var s = v[i].split(':')
-      if (s[0] === null || s[0] === '' || s[0] === 'null' || typeof s[0] === 'undefined') {
-        break
-      }
-      arr[s[0].trim()] = s[1].trim()
-    }
-    useratributes.value = arr
-  })
-}
-
-async function getData(pg, param_ids) {
-  pg = pg + '?' + param_ids
-  //setCountPostClick(countPostClick + 1)
-  await axios.get(pg).then((data) => {
-    var arr = []
-    let v = data.data.split(';')
-    for (var i = 0; i < v.length; i++) {
-      var s = v[i].split(':')
-      if (s[0] === null || s[0] === '' || s[0] === 'null' || typeof s[0] === 'undefined') {
-        break
-      }
-      arr[s[0].trim()] = s[1].trim()
-    }
-    if (pg.includes('likes')) {
-      postlikes.value = arr
-    } else if (pg.includes('comments')) {
-      postcomments.value = arr
-    } else if (pg.includes('shares')) {
-      postshares.value = arr
-    }
-  })
-}
-async function sendData(vtype_of_like, vpost_id) {
-  let rs_response = ''
-  let lnk = ''
-
-  if (vtype_of_like === 'like') {
-    lnk = `${link.value}addremovelike`
-  } else if (vtype_of_like === 'comment') {
-    lnk = `${link.value}addcomment`
-  }
-  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
-  const v = { post_id: vpost_id, type_of_like: vtype_of_like, txt: commenttxt }
-  await axios
-    .post(lnk, v, {
-      headers: {
-        'X-CSRFToken': csrftoken
-      }
-    })
-    .then(
-      (response) => {
-        rs_response = response.data
-        console.log('rs: ' + rs_response)
-        if (vtype_of_like === 'like') {
-          getData('postlikes')
-        } else if (vtype_of_like === 'comment') {
-          getData('postcomments')
-        }
-      },
-      (error) => {
-        rs_response = error
-      }
-    )
-}
-const getUserNameFirstChar = (k) => {
-  for (let [key, value] of Object.entries(useratributes.value)) {
-    if(Number(key) === Number(k)) {
-       return value.split('')[0]
-    }
-  }
-  return k
-}
-const getUserName = (k) => {
-  for (let [key, value] of Object.entries(useratributes.value)) {
-    if(Number(key) === Number(k)) {
-       return value
-    }
-  }
-  return k
+const getUserNameFirstChar = (v) => {
+  return v.split('')[0]
 }
 </script>
 
 <template>
   <main>
+    <h1 style="background-color: white;">Posts of User: <strong>{{ link_username }}</strong></h1>
     <div
       v-for="p in posts"
       class="div_content_style"
@@ -159,28 +42,47 @@ const getUserName = (k) => {
         <tbody>
           <tr>
             <td>
+              <a :href="`posts/${p.username}`" class="userstylepic">
+                <strong style="color: white">
+                  {{ getUserNameFirstChar(p.username) }}
+                </strong>
+              </a>
+
               <a :href="'/posts/post/' + p.link" class="classUserProfile">
                 {{ p.title }}
               </a>
               <br />
-              <span class="timeOfPost">0 days</span>
+              <span class="timeOfPost">{{ p.date_created }}</span>
             </td>
           </tr>
           <tr>
             <td>
-              {{ p.post_content.slice(0, 200) + '...' }} <br />
-              <span class="likesclass">
-                <i class="bi bi-hand-thumbs-up"></i>
-              </span>
-              {{ search(p.id, postlikes, 'likes') }}
-              <span class="commentMargin">
-                <i class="bi bi-chat-left"></i>
-              </span>
-              {{ search(p.id, postcomments, 'comments') }}
-              <span class="shareMargin">
-                <i class="bi bi-share"></i>
-              </span>
-              {{ search(p.id, postshares, 'shares') }}
+              {{ p.post_content.slice(0, 200) + '...' }} <br />              
+                <i class="bi bi-hand-thumbs-up padding_right">
+                  <span class="padding_right2">
+                  {{ p.count_likes }}
+                  </span>
+                </i>
+                <i class="bi bi bi-heart padding_right">
+                  <span class="padding_right2">
+                  {{ p.count_loves }}
+                  </span>
+                </i>
+                <i class="bi bi-hand-thumbs-down padding_right">
+                  <span class="padding_right2">
+                  {{ p.count_likes }}
+                  </span>
+                </i>
+                <i class="bi bi-chat-left padding_right">
+                  <span class="padding_right2">
+                  {{ p.count_sads }}
+                  </span>
+                </i>
+                <i class="bi bi-share padding_right">
+                  <span class="padding_right2">
+                  {{ p.count_sads }}
+                  </span>
+                </i> 
             </td>
           </tr>
           <tr>
@@ -188,7 +90,7 @@ const getUserName = (k) => {
           </tr>
           <tr>
             <td>
-              <i class="bi bi-hand-thumbs-up" onClick="() => sendData('like', p.pk)"></i> Like
+              <i class="bi bi-hand-thumbs-up" onClick="() => sendData('like', p.id)"></i> Like
               <i class="bi bi-chat-left optionsclass"></i> comment
               <i class="bi bi-share optionsclass"></i> share
             </td>
