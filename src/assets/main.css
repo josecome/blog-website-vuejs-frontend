@@ -99,3 +99,9 @@ a {
 .removestyle {
   all: unset;
 }
+.padding_right{
+  padding-right: 10px;
+}
+.padding_right2{
+  padding-left: 2px;
+}
