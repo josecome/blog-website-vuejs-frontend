@@ -107,7 +107,6 @@ const getUserNameFirstChar = (v) => {
                 <input
                   type="text"
                   class="commentclass, content"
-                  onChange="(e) => { setPostCommenttxt(e.target.value)}"
                   placeholder="Write a comment..."
                 />
                 <span class="commenticons, sidecontent">
@@ -122,7 +121,7 @@ const getUserNameFirstChar = (v) => {
               <i
                 class="bi bi-send btnSendComment"
                 title="Post Comment"
-                onClick="() => sendData('comment', p.pk)"
+                @click="(e) => setData(post[0].id)"
               >
                 <span class="removeclass">Post</span>
               </i>

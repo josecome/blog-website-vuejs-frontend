@@ -8,52 +8,37 @@ export const useStoreAuth = defineStore('auth_store', () => {
   const UserName = ref('')
   const Email = ref('')
   const Password = ref('')
-  const link = ref('http://127.0.0.1:8000/api/login/')
+  const link = ref('http://127.0.0.1:8000/api/token/')
 
   const requestLogin = async () => {
-    console.log('local: ' + localToken.value)
-    const v = { email: Email.value, password: Password.value }
+    console.log('================V1====================')
+    console.log(UserName.value)
+    console.log(Password.value)
+    const v = { username: UserName.value, password: Password.value }
     const res = await axios.post(link.value, v, {
       headers: {
         Accept: 'application/json',
         //'Content-Type': 'application/json',
-        Authorization: `Bearer ${localToken.value}`
+        Authorization: `Bearer ${ localToken.value }`
       }
     })
+    console.log('======================================')    
     console.log(res)
-    console.log(isLoggedin.value)
-    if (
-      typeof Email.value === 'undefined' &&
-      typeof Password.value === 'undefined' &&
-      res.data.loggedin === 1
-    ) {
-      //This user has valid token, do nothing
-    } else if (res.data.loggedin === 1) {
-      try {
-        localStorage.removeItem('token')
-      } catch (e) {
-        console.log('Error: ' + e.message)
-      }
-      localStorage.setItem('token', res.data.token)
-    } else if (res.data === 'loggedin') {
-      isLoggedin.value = true
+    var data_access = res.data.access;
+    localStorage.setItem('token', data_access)
+    if(data_access.length && data_access.length > 10) {
+      isLoggedin.value = true;
     }
-
-    if (res.data.loggedin === 1) {
-      isLoggedin.value = true
-    }
-
-    console.log(isLoggedin.value)
     return 'success'
   }
   //isLoggedin.value = true
   function LoginUser() {
-    link.value = 'http://127.0.0.1:8000/api/login/'
+    link.value = 'http://127.0.0.1:8000/api/token/'
     requestLogin()
   }
   function LoginUserByToken() {
     localToken.value = localStorage.getItem('token')
-    link.value = 'http://127.0.0.1:8000/api/user/'
+    link.value = 'http://127.0.0.1:8000/token/verify/'
     requestLogin()
   }
 

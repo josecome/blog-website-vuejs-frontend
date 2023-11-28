@@ -1,12 +1,13 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onBeforeMount, watch } from 'vue'
 import axios from 'axios'
 
 const posts = ref([])
 const initialState = ref(false)
 const link = ref('http://127.0.0.1:8000/api/')
+const localToken = ref('no_token')
 
-onMounted(() => {
+onBeforeMount(() => {
   var param_ids = "";
   if (!initialState.value) {
     axios.get(`${link.value}posts`).then((data) => {
@@ -22,8 +23,35 @@ onMounted(() => {
   });
   }
 })
+/*onMounted(() => {
+  localToken.value = tkn()
+})*/
 const getUserNameFirstChar = (v) => {
   return v.split('')[0]
+}
+function tkn() {
+  return localStorage.getItem('token');
+}
+const setData = async (c, i) => {
+  console.log('local: ' + localToken.value)
+  const v = { comment: c, id: i }
+  await axios
+    .post(`${link.value}posts`, v, {
+      headers: {
+        //'X-CSRFToken': csrftoken
+        Accept: 'application/json',
+        //'Content-Type': 'application/json',
+        Authorization: `Bearer ${localToken.value}`
+      }
+    })
+    .then(
+      (response) => {
+        var rs_response = response.data
+      },
+      (error) => {
+        rs_response = error
+      }
+    )
 }
 </script>
 
@@ -103,7 +131,6 @@ const getUserNameFirstChar = (v) => {
                 <input
                   type="text"
                   class="commentclass, content"
-                  onChange="(e) => { setPostCommenttxt(e.target.value)}"
                   placeholder="Write a comment..."
                 />
                 <span class="commenticons, sidecontent">
@@ -118,7 +145,7 @@ const getUserNameFirstChar = (v) => {
               <i
                 class="bi bi-send btnSendComment"
                 title="Post Comment"
-                onClick="() => sendData('comment', p.pk)"
+                @click="(e) => setData(p[0].id)"
               >
                 <span class="removeclass">Post</span>
               </i>

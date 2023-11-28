@@ -6,10 +6,10 @@ import { useStoreAuth } from '@/stores/auth_store'
 import { storeToRefs } from 'pinia'
 const auth_store = useStoreAuth()
 const { isLoggedin, LoginUser, UserName, userLoginData, Email, Password } = storeToRefs(auth_store)
-const user = reactive({ email: '', password: '' })
+const user = reactive({ username: '', password: '' })
 const emit = defineEmits(['submitForm'])
 function submit() {
-  Email.value = user.email
+  UserName.value = user.username
   Password.value = user.password
   emit('submitForm')
 }
@@ -19,13 +19,13 @@ function submit() {
   <div id="login_div" class="container d-flex align-items-center justify-content-center">
     <form @submit.prevent>
       <div class="mb-3">
-        <label for="InputEmail1" class="form-label">Email address</label>
+        <label for="InputEmail1" class="form-label">UserName</label>
         <input
           type="text"
           class="form-control"
           name="username"
           id="InputEmail1"
-          v-model="user.email"
+          v-model="user.username"
         />
         <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
       </div>

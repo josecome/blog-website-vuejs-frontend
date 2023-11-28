@@ -5,20 +5,42 @@ import axios from 'axios'
 const route = useRoute()
 const post = ref([])
 const initialState = ref(false)
+const txtcomment = ref('')
 const link = ref('http://127.0.0.1:8000/api/')
 const link_path = ref(route.params.lnk)
+const localToken = ref(localStorage.getItem('token'))
 
-onMounted(() => {
-  if (!initialState.value) {
+onBeforeMount(() => {
+    console.log(`${link.value}post/${link_path.value}`)
     axios.get(`${link.value}post/${link_path.value}`).then((data) => {
       console.log('=======================================')
       console.log(data.data)
       post.value = data.data
     })
-    initialState.value = true
-  }
 })
-
+const setData = async (i) => {
+  
+  const v = {comment: txtcomment.value, post: i }
+  await axios
+    .post(`${link.value}comments/`, v, {
+      headers: {
+        Accept: 'application/json',
+        Authorization:  `Bearer ${ localStorage.getItem('token') }`,
+      }
+    })
+    .then(
+      (response) => {
+        var rs_response = response.data
+        console.log('===============v1===================')
+        console.log(rs_response)
+      },
+      (error) => {
+        var rs_response = error
+        console.log('===============v2===================')
+        console.log(rs_response)
+      }
+    )
+}
 </script>
 
 <template>
@@ -64,6 +86,35 @@ onMounted(() => {
                 </div>
                 <br />
                 <strong style="padding: 10px; margin: 10px">Comments</strong>
+                <br />
+                <div>
+              <label class="userclassPic2 centerText"
+                ><span>{{ post[0].topic }}</span></label
+              >
+              <div class="divcommentclass, container">
+                <input
+                  type="text"
+                  class="commentclass, content"                  
+                  placeholder="Write a comment..."
+                  v-model="txtcomment"
+                />
+                <span class="commenticons, sidecontent">
+                  <i class="bi bi-emoji-smile optionsclass"></i>
+                  <i class="bi bi-image optionsclass"></i>
+                  <i class="bi bi-hand-thumbs-up optionsclass"></i>
+                  <i class="bi bi-hand-thumbs-down optionsclass"></i>
+                  <i class="bi bi-heart optionsclass"></i>
+                  <i class="bi bi-handbag optionsclass"></i>
+                </span>
+              </div>
+              <i
+                class="bi bi-send btnSendComment"
+                title="Post Comment"
+                @click="(e) => setData(post[0].id)"
+              >
+                Post
+              </i>
+            </div>
                 <br />
                 <hr style="width: 92%;" />
                 <div v-for="comment in post[0].comments"
